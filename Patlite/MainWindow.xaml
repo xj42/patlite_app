@@ -1,0 +1,249 @@
+﻿<Window x:Class="Patlite.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:sys="clr-namespace:System;assembly=mscorlib"
+        xmlns:local="clr-namespace:Patlite"
+        xmlns:pns="clr-namespace:Patlite.lib;assembly=Patlite.lib"
+        mc:Ignorable="d"
+        Title="Patlite Controller" Height="520" Width="400" MinHeight="500" MinWidth="380">
+
+    <!-- Resources -->
+    <Window.Resources>
+        <!-- Enum providers -->
+        <ObjectDataProvider x:Key="La6Colours" MethodName="GetValues" ObjectType="{x:Type sys:Enum}">
+            <ObjectDataProvider.MethodParameters>
+                <x:Type TypeName="pns:La6Colour"/>
+            </ObjectDataProvider.MethodParameters>
+        </ObjectDataProvider>
+
+        <ObjectDataProvider x:Key="FlashValues" MethodName="GetValues" ObjectType="{x:Type sys:Enum}">
+            <ObjectDataProvider.MethodParameters>
+                <x:Type TypeName="pns:Flash"/>
+            </ObjectDataProvider.MethodParameters>
+        </ObjectDataProvider>
+
+        <ObjectDataProvider x:Key="BuzzerValues" MethodName="GetValues" ObjectType="{x:Type sys:Enum}">
+            <ObjectDataProvider.MethodParameters>
+                <x:Type TypeName="pns:BuzzerPattern"/>
+            </ObjectDataProvider.MethodParameters>
+        </ObjectDataProvider>
+
+        <!-- Converters (define classes in Patlite namespace) -->
+        <local:La6ColourToBrushConverter x:Key="La6ColourToBrushConverter"/>
+        <local:InverseBoolConverter x:Key="InverseBoolConverter"/>
+
+        <!-- Styles -->
+        <Style x:Key="LabelStyle" TargetType="TextBlock">
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Margin" Value="0,0,8,0"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+        </Style>
+
+        <!-- Item template showing a color dot and enum name -->
+        <DataTemplate x:Key="ColourItemTemplate">
+            <StackPanel Orientation="Horizontal" Margin="0,2">
+                <Ellipse Width="12" Height="12" StrokeThickness="0.5" Stroke="Black"
+                         Fill="{Binding Converter={StaticResource La6ColourToBrushConverter}}"/>
+                <TextBlock Margin="6,0,0,0" Text="{Binding}"/>
+            </StackPanel>
+        </DataTemplate>
+        <!-- Blink the indicator ellipses when AppliedFlash == Flash.On -->
+        <Style x:Key="TierIndicatorStyle" TargetType="Ellipse">
+            <Setter Property="Opacity" Value="1"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding AppliedFlash}" Value="{x:Static pns:Flash.On}">
+                    <DataTrigger.EnterActions>
+                        <BeginStoryboard x:Name="BlinkStoryboard" 
+                                         HandoffBehavior="SnapshotAndReplace">
+                            <Storyboard RepeatBehavior="Forever"  AutoReverse="True">
+                                <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                             From="1" To="0.25" Duration="0:0:0.35"/>
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </DataTrigger.EnterActions>
+                    <DataTrigger.ExitActions>
+                        <StopStoryboard BeginStoryboardName="BlinkStoryboard"/>
+                        <!-- optional but nice; ensures clock is fully removed -->
+                        <RemoveStoryboard BeginStoryboardName="BlinkStoryboard"/>
+                    </DataTrigger.ExitActions>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+    </Window.Resources>
+
+    <!-- Layout -->
+    <Grid Margin="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <!-- Top bar: flash + buzzer + connection -->
+            <RowDefinition Height="10"/>
+            <RowDefinition Height="Auto"/>
+            <!-- Tiers -->
+            <RowDefinition Height="10"/>
+            <RowDefinition Height="*"/>
+            <!-- Status area -->
+            <RowDefinition Height="10"/>
+            <RowDefinition Height="Auto"/>
+            <!-- Buttons -->
+        </Grid.RowDefinitions>
+
+        <!-- Top bar -->
+        <DockPanel Grid.Row="0" LastChildFill="True">
+
+            <!-- Right: IP / Port / Busy -->
+            <StackPanel Orientation="Horizontal" DockPanel.Dock="Top" VerticalAlignment="Stretch" Margin="0,0,0,10">
+                
+                <TextBlock Text="IP:" Style="{StaticResource LabelStyle}"/>
+                <TextBox  Width="120" Text="{Binding Ip, UpdateSourceTrigger=PropertyChanged}"/>
+
+                <TextBlock Text="Port:" Style="{StaticResource LabelStyle}" Margin="12,0,0,0"/>
+                <TextBox  Width="50" Text="{Binding Port, UpdateSourceTrigger=PropertyChanged}"/>
+
+                <TextBlock Margin="12,0,100,0" VerticalAlignment="Center" HorizontalAlignment="Right"
+                           Text="{Binding IsBusy, StringFormat=Busy: {0}}"/>
+            </StackPanel>
+
+            <!-- Left: Flash & Buzzer -->
+
+            <StackPanel Orientation="Horizontal" DockPanel.Dock="Top"  VerticalAlignment="Center">
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Text="Flash:" Style="{StaticResource LabelStyle}"/>
+                    <ComboBox Width="100"
+                              ItemsSource="{Binding Source={StaticResource FlashValues}}"
+                              SelectedItem="{Binding Flash, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                </StackPanel>
+
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Text="Buzzer:" Style="{StaticResource LabelStyle}"/>
+                    <ComboBox Width="100"
+                              ItemsSource="{Binding Source={StaticResource BuzzerValues}}"
+                              SelectedItem="{Binding Buzzer, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                </StackPanel>
+            </StackPanel>
+            
+            <StackPanel Orientation="Horizontal" DockPanel.Dock="Bottom"  VerticalAlignment="Center">
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Text="Current Flash:" Style="{StaticResource LabelStyle}"/>
+                    <TextBlock Text="{Binding AppliedFlash}"/>
+
+                    <TextBlock Text="Current Buzzer:" Margin="16,0,0,0" Style="{StaticResource LabelStyle}"/>
+                    <TextBlock Text="{Binding AppliedBuzzer}"/>
+                </StackPanel>
+            </StackPanel>
+
+        </DockPanel>
+
+        <!-- Tiers -->
+        <Grid Grid.Row="2">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="110"/>
+                <ColumnDefinition Width="50"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Tier 1 -->
+            <TextBlock Grid.Row="0" Grid.Column="0" Text="Tier 1" Style="{StaticResource LabelStyle}"/>
+            <ComboBox Grid.Row="0" Grid.Column="1" Width="100" Margin="0,4"
+                      ItemsSource="{Binding Source={StaticResource La6Colours}}"
+                      ItemTemplate="{StaticResource ColourItemTemplate}"
+                      SelectedItem="{Binding Tier1, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+            <Ellipse Grid.Row="0" Grid.Column="2" Width="20" Height="20" StrokeThickness="0.5" Stroke="Black" Margin="8,0,0,0"    Style="{StaticResource TierIndicatorStyle}"
+                     Fill="{Binding AppliedTier1, Converter={StaticResource La6ColourToBrushConverter}}"/>
+            
+            <!-- Tier 2 -->
+            <TextBlock Grid.Row="1" Grid.Column="0" Text="Tier 2" Style="{StaticResource LabelStyle}"/>
+            <ComboBox Grid.Row="1" Grid.Column="1" Width="100" Margin="0,4"
+                      ItemsSource="{Binding Source={StaticResource La6Colours}}"
+                      ItemTemplate="{StaticResource ColourItemTemplate}"
+                      SelectedItem="{Binding Tier2, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+            <Ellipse Grid.Row="1" Grid.Column="2" Width="20" Height="20" StrokeThickness="0.5" Stroke="Black" Margin="8,0,0,0"    Style="{StaticResource TierIndicatorStyle}"
+                     Fill="{Binding AppliedTier2, Converter={StaticResource La6ColourToBrushConverter}}"/>
+
+            <!-- Tier 3 -->
+            <TextBlock Grid.Row="2" Grid.Column="0" Text="Tier 3" Style="{StaticResource LabelStyle}"/>
+            <ComboBox Grid.Row="2" Grid.Column="1" Width="100" Margin="0,4"
+                      ItemsSource="{Binding Source={StaticResource La6Colours}}"
+                      ItemTemplate="{StaticResource ColourItemTemplate}"
+                      SelectedItem="{Binding Tier3, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+            <Ellipse Grid.Row="2" Grid.Column="2" Width="20" Height="20" StrokeThickness="0.5" Stroke="Black" Margin="8,0,0,0"    Style="{StaticResource TierIndicatorStyle}"
+                     Fill="{Binding AppliedTier3, Converter={StaticResource La6ColourToBrushConverter}}"/>
+
+            <!-- Tier 4 -->
+            <TextBlock Grid.Row="3" Grid.Column="0" Text="Tier 4" Style="{StaticResource LabelStyle}"/>
+            <ComboBox Grid.Row="3" Grid.Column="1" Width="100" Margin="0,4"
+                      ItemsSource="{Binding Source={StaticResource La6Colours}}"
+                      ItemTemplate="{StaticResource ColourItemTemplate}"
+                      SelectedItem="{Binding Tier4, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+            <Ellipse Grid.Row="3" Grid.Column="2" Width="20" Height="20" StrokeThickness="0.5" Stroke="Black" Margin="8,0,0,0"    Style="{StaticResource TierIndicatorStyle}"
+                     Fill="{Binding AppliedTier4, Converter={StaticResource La6ColourToBrushConverter}}"/>
+
+            <!-- Tier 5 -->
+            <TextBlock Grid.Row="4" Grid.Column="0" Text="Tier 5" Style="{StaticResource LabelStyle}"/>
+            <ComboBox Grid.Row="4" Grid.Column="1" Width="100" Margin="0,4"
+                      ItemsSource="{Binding Source={StaticResource La6Colours}}"
+                      ItemTemplate="{StaticResource ColourItemTemplate}"
+                      SelectedItem="{Binding Tier5, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+            <Ellipse Grid.Row="4" Grid.Column="2" Width="20" Height="20" StrokeThickness="0.5" Stroke="Black" Margin="8,0,0,0"    Style="{StaticResource TierIndicatorStyle}"
+                     Fill="{Binding AppliedTier5, Converter={StaticResource La6ColourToBrushConverter}}"/>
+
+
+
+            <!-- Five one-click preset buttons -->
+            <StackPanel Grid.Row="0"
+            Orientation="Vertical"
+            Grid.Column="3" Grid.RowSpan="5"
+            HorizontalAlignment="Center"
+            Margin="10,0,12,0">
+                <ItemsControl ItemsSource="{Binding Presets}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Vertical"/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Button Content="{Binding Name}"
+                Padding="30,4"
+                Margin="0,8,0,0"
+                Command="{Binding DataContext.ApplyAndSendPresetCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                CommandParameter="{Binding}" />
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </StackPanel>
+
+
+        </Grid>
+
+        <!-- Status / log area -->
+        <Border Grid.Row="4" CornerRadius="6" BorderBrush="#DDD" BorderThickness="1" Padding="12">
+            <ListBox x:Name="LogList"
+           ItemsSource="{Binding LogLines}"
+           BorderThickness="0"
+           Background="#111"
+           Foreground="#DDD"
+           FontFamily="Cascadia Mono, Consolas, Courier New, monospace"/>
+        </Border>
+
+        <!-- Buttons -->
+        <StackPanel Grid.Row="6" Orientation="Horizontal" HorizontalAlignment="Right" >
+            <Button Content="Off" Width="110"
+                    Command="{Binding OffCommand}"
+                    IsEnabled="{Binding IsBusy, Converter={StaticResource InverseBoolConverter}}"/>
+            <Button Content="Send" Width="130"
+                    Command="{Binding SendCommand}"
+                    IsEnabled="{Binding IsBusy, Converter={StaticResource InverseBoolConverter}}"/>
+        </StackPanel>
+    </Grid>
+</Window>
