@@ -1,0 +1,32 @@
+# GitVersion 6.x configuration
+
+mode: ContinuousDelivery          # keep CD globally (valid in v6)
+increment: Patch                  # default bump
+tag-prefix: '[vV]'                # use v1.2.3 tags
+
+branches:
+  main:
+    regex: ^main$
+    increment: Patch
+    label: ''                     # no prerelease on main
+    is-main-branch: true
+
+  develop:
+    regex: ^develop$
+    increment: Minor
+    label: 'beta'
+
+  feature:
+    regex: ^feature[/-]
+    increment: Patch
+    label: 'feature'
+
+  hotfix:
+    regex: ^hotfix[/-]
+    increment: Patch
+    label: 'hotfix'
+
+  release:
+    regex: ^release[/-]
+    increment: Patch
+    label: 'rc'

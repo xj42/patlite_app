@@ -1,0 +1,92 @@
+trigger:
+- main
+
+pool:
+  vmImage: 'windows-latest'
+
+variables:
+  solution: '**/*.sln'
+  buildConfiguration: 'Release'
+  runtime: 'win-x64'        # change to win-x86 if you need 32-bit
+  dotnetVersion: '8.0.x'    # set to your SDK version
+
+steps:
+# Ensure full history and tags for GitVersion
+- checkout: self
+  fetchDepth: 0
+
+- task: gitversion-setup@4
+  displayName: Install GitVersion
+  inputs:
+    versionSpec: '6.4.x'
+
+- task: gitversion-execute@4
+  name: gitVersion
+  displayName: GitVersion execute
+  inputs:
+    configFilePath: 'GitVersion.yml'
+
+
+# .NET SDK
+- task: UseDotNet@2
+  displayName: 'Use .NET SDK $(dotnetVersion)'
+  inputs:
+    packageType: 'sdk'
+    version: '$(dotnetVersion)'
+
+# NuGet restore
+- task: NuGetToolInstaller@1
+  displayName: 'Install NuGet'
+
+- task: NuGetCommand@2
+  displayName: 'NuGet restore'
+  inputs:
+    restoreSolution: '$(solution)'
+
+# Build (GitVersion.MsBuild in your project injects Version properties automatically)
+- task: DotNetCoreCLI@2
+  displayName: 'dotnet build'
+  inputs:
+    command: 'build'
+    projects: '$(solution)'
+    arguments: '--configuration $(buildConfiguration)'
+
+# (Optional) Tests — keep if you have test projects
+- task: DotNetCoreCLI@2
+  displayName: 'dotnet test'
+  inputs:
+    command: 'test'
+    projects: '$(solution)'
+    arguments: '--configuration $(buildConfiguration)'
+
+# Publish desktop app
+- task: DotNetCoreCLI@2
+  displayName: 'dotnet publish'
+  inputs:
+    command: 'publish'
+    publishWebProjects: false
+    projects: '$(solution)'
+    arguments: >
+      --configuration $(buildConfiguration)
+      --runtime $(runtime)
+      --self-contained false
+      -p:PublishSingleFile=false
+      -p:IncludeNativeLibrariesForSelfExtract=true
+      --output $(Build.ArtifactStagingDirectory)\publish
+
+# Zip the published output
+- powershell: |
+    Add-Type -AssemblyName System.IO.Compression.FileSystem
+    $src = "$(Build.ArtifactStagingDirectory)\publish"
+    $zip = "$(Build.ArtifactStagingDirectory)\publish-$(gitVersion.SemVer).zip"
+    if (Test-Path $zip) { Remove-Item $zip -Force }
+    [System.IO.Compression.ZipFile]::CreateFromDirectory($src, $zip)
+  displayName: 'Zip published output'
+
+# Publish artifacts (versioned by GitVersion)
+- task: PublishBuildArtifacts@1
+  displayName: 'Publish artifacts'
+  inputs:
+    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+    ArtifactName: 'desktop-drop-$(gitVersion.SemVer)'
+    publishLocation: 'Container'
