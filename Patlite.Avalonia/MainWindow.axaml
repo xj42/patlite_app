@@ -1,0 +1,96 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="using:Patlite.Avalonia.ViewModels"
+        xmlns:local="using:Patlite.Avalonia.Converters"
+        mc:Ignorable="d"
+        d:DesignWidth="900"
+        d:DesignHeight="620"
+        x:Class="Patlite.Avalonia.MainWindow"
+        x:DataType="vm:MainViewModel"
+        Title="Patlite Controller (Avalonia)"
+        Width="900"
+        Height="620"
+        MinWidth="840"
+        MinHeight="560">
+  <Window.Resources>
+    <local:La6ColourToBrushConverter x:Key="ColourBrush" />
+    <local:InverseBoolConverter x:Key="InverseBool" />
+  </Window.Resources>
+
+  <Grid RowDefinitions="Auto,Auto,*,Auto" ColumnDefinitions="*,280" Margin="18">
+    <Border Grid.Row="0" Grid.ColumnSpan="2" Padding="12" CornerRadius="8" BorderBrush="#3A4A5A" BorderThickness="1" Background="#18232F">
+      <Grid ColumnDefinitions="Auto,120,Auto,80,Auto,120,Auto,120,*">
+        <TextBlock Grid.Column="0" Text="IP" VerticalAlignment="Center" Margin="0,0,8,0"/>
+        <TextBox Grid.Column="1" Text="{Binding Ip, UpdateSourceTrigger=PropertyChanged}" Watermark="127.0.0.1"/>
+
+        <TextBlock Grid.Column="2" Text="Port" VerticalAlignment="Center" Margin="16,0,8,0"/>
+        <TextBox Grid.Column="3" Text="{Binding Port, UpdateSourceTrigger=PropertyChanged}" Watermark="12000"/>
+
+        <TextBlock Grid.Column="4" Text="Flash" VerticalAlignment="Center" Margin="16,0,8,0"/>
+        <ComboBox Grid.Column="5" ItemsSource="{Binding FlashValues}" SelectedItem="{Binding Flash}"/>
+
+        <TextBlock Grid.Column="6" Text="Buzzer" VerticalAlignment="Center" Margin="16,0,8,0"/>
+        <ComboBox Grid.Column="7" ItemsSource="{Binding BuzzerValues}" SelectedItem="{Binding Buzzer}"/>
+
+        <TextBlock Grid.Column="8" HorizontalAlignment="Right" VerticalAlignment="Center" Text="{Binding IsBusy, StringFormat=Busy: {0}}"/>
+      </Grid>
+    </Border>
+
+    <Border Grid.Row="1" Grid.Column="0" Margin="0,12,12,12" Padding="12" CornerRadius="8" BorderBrush="#D8DEE7" BorderThickness="1">
+      <Grid RowDefinitions="Auto,Auto,Auto,Auto,Auto" ColumnDefinitions="Auto,170,Auto,Auto">
+        <TextBlock Grid.Row="0" Grid.Column="0" Text="Tier 1" VerticalAlignment="Center" Margin="0,0,0,8" />
+        <ComboBox Grid.Row="0" Grid.Column="1" ItemsSource="{Binding La6Colours}" SelectedItem="{Binding Tier1}" Margin="0,0,0,8" />
+        <Border Grid.Row="0" Grid.Column="2" Width="18" Height="18" CornerRadius="9" BorderBrush="#111" BorderThickness="1" Background="{Binding AppliedTier1, Converter={StaticResource ColourBrush}}" />
+
+        <TextBlock Grid.Row="1" Grid.Column="0" Text="Tier 2" VerticalAlignment="Center" Margin="0,0,0,8" />
+        <ComboBox Grid.Row="1" Grid.Column="1" ItemsSource="{Binding La6Colours}" SelectedItem="{Binding Tier2}" Margin="0,0,0,8" />
+        <Border Grid.Row="1" Grid.Column="2" Width="18" Height="18" CornerRadius="9" BorderBrush="#111" BorderThickness="1" Background="{Binding AppliedTier2, Converter={StaticResource ColourBrush}}" />
+
+        <TextBlock Grid.Row="2" Grid.Column="0" Text="Tier 3" VerticalAlignment="Center" Margin="0,0,0,8" />
+        <ComboBox Grid.Row="2" Grid.Column="1" ItemsSource="{Binding La6Colours}" SelectedItem="{Binding Tier3}" Margin="0,0,0,8" />
+        <Border Grid.Row="2" Grid.Column="2" Width="18" Height="18" CornerRadius="9" BorderBrush="#111" BorderThickness="1" Background="{Binding AppliedTier3, Converter={StaticResource ColourBrush}}" />
+
+        <TextBlock Grid.Row="3" Grid.Column="0" Text="Tier 4" VerticalAlignment="Center" Margin="0,0,0,8" />
+        <ComboBox Grid.Row="3" Grid.Column="1" ItemsSource="{Binding La6Colours}" SelectedItem="{Binding Tier4}" Margin="0,0,0,8" />
+        <Border Grid.Row="3" Grid.Column="2" Width="18" Height="18" CornerRadius="9" BorderBrush="#111" BorderThickness="1" Background="{Binding AppliedTier4, Converter={StaticResource ColourBrush}}" />
+
+        <TextBlock Grid.Row="4" Grid.Column="0" Text="Tier 5" VerticalAlignment="Center" />
+        <ComboBox Grid.Row="4" Grid.Column="1" ItemsSource="{Binding La6Colours}" SelectedItem="{Binding Tier5}" />
+        <Border Grid.Row="4" Grid.Column="2" Width="18" Height="18" CornerRadius="9" BorderBrush="#111" BorderThickness="1" Background="{Binding AppliedTier5, Converter={StaticResource ColourBrush}}" />
+      </Grid>
+    </Border>
+
+    <Border Grid.Row="1" Grid.Column="1" Margin="0,12,0,12" Padding="12" CornerRadius="8" BorderBrush="#D8DEE7" BorderThickness="1">
+      <StackPanel Spacing="8">
+        <TextBlock Text="Presets" FontWeight="SemiBold" />
+        <ItemsControl ItemsSource="{Binding Presets}">
+          <ItemsControl.ItemTemplate>
+            <DataTemplate>
+              <Button Content="{Binding Name}"
+                      HorizontalAlignment="Stretch"
+                      Command="{Binding DataContext.ApplyAndSendPresetCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                      CommandParameter="{Binding .}"/>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+
+        <Separator Margin="0,8,0,8"/>
+        <TextBlock Text="Current Flash" FontWeight="SemiBold" />
+        <TextBlock Text="{Binding AppliedFlash}" />
+        <TextBlock Text="Current Buzzer" FontWeight="SemiBold" Margin="0,6,0,0" />
+        <TextBlock Text="{Binding AppliedBuzzer}" />
+      </StackPanel>
+    </Border>
+
+    <Border Grid.Row="2" Grid.ColumnSpan="2" Padding="12" CornerRadius="8" BorderBrush="#D8DEE7" BorderThickness="1" Background="#101820">
+      <ListBox ItemsSource="{Binding LogLines}" Background="Transparent" BorderThickness="0" Foreground="#E5EEF8" FontFamily="Cascadia Mono,Consolas,Monospace" />
+    </Border>
+
+    <StackPanel Grid.Row="3" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,12,0,0" Spacing="8">
+      <Button Content="Off" Width="120" Command="{Binding OffCommand}" IsEnabled="{Binding IsBusy, Converter={StaticResource InverseBool}}" />
+      <Button Content="Send" Width="140" Command="{Binding SendCommand}" IsEnabled="{Binding IsBusy, Converter={StaticResource InverseBool}}" />
+    </StackPanel>
+  </Grid>
+</Window>
