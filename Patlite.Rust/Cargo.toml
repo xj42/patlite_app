@@ -1,0 +1,10 @@
+[package]
+name = "patlite_rust"
+version = "0.1.0"
+edition = "2021"
+authors = ["Patlite Rust"]
+description = "100% Rust Patlite LA6-POE controller"
+license = "MIT"
+
+[dependencies]
+iced = "0.14.0"

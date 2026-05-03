@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="Patlite.Avalonia/Patlite.Avalonia.csproj" />
+  <Project Path="Patlite.lib/Patlite.lib.csproj" />
+  <Project Path="Patlite.Tests/Patlite.Tests.csproj" />
+  <Project Path="Patlite/Patlite.csproj" />
+</Solution>
