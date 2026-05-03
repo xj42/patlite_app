@@ -66,12 +66,12 @@ Status legend: `Done` is implemented and locally verified where noted; `In progr
 
 | Milestone | Status | Progress | Remaining |
 | --- | --- | --- | --- |
-| 1. Runnable Iced Shell | In progress | `Cargo.toml` now targets Iced and `main.rs` launches the Iced app. | Run Cargo verification after dependencies resolve. |
-| 2. Protocol Core | In progress | Protocol enums, presets, packet bytes, and unit tests are in `protocol.rs`. | Run Rust tests. |
-| 3. Interactive Local UI | In progress | Iced state and control messages are implemented in `app.rs`. | Verify compile and GUI launch. |
-| 4. Endpoint Validation | In progress | Host and port validation are implemented in `transport.rs`. | Run validation tests. |
-| 5. UDP Send Pipeline | In progress | Async send task and UDP transport are implemented. | Run loopback UDP test. |
-| 6. Applied State Parity | In progress | Applied tier, flash, and buzzer state update only on successful send. | Verify tests and manual UI behavior. |
-| 7. Visual Parity Pass | In progress | Main workflow panels, presets, logs, and busy status are implemented. | Polish layout issues found after running. |
-| 8. Patlite Auto Discovery | In progress | HTTP status and PNS detailed status discovery are implemented in `discovery.rs`. | Run tests and verify on a real LAN/device when available. |
-| 9. Cross-Platform Hardening | Remaining | README now lists Rust verification commands. | Run fmt, clippy, tests, release build, and add CI later. |
+| 1. Runnable Iced Shell | Done | `Cargo.toml` targets Iced and `main.rs` launches the Iced app. `cargo build --release` passed locally. | Manual GUI launch/visual inspection on a workstation. |
+| 2. Protocol Core | Done | Protocol enums, presets, packet bytes, and unit tests are in `protocol.rs`. Packet tests pass. | None. |
+| 3. Interactive Local UI | Done | Iced state and control messages are implemented in `app.rs`; the app builds with all controls wired. | Manual click-through once the GUI is launched. |
+| 4. Endpoint Validation | Done | Host and port validation are implemented in `transport.rs`. Validation tests pass. | None. |
+| 5. UDP Send Pipeline | Done | Async send task and UDP transport are implemented. Loopback UDP test passes with local-network permission. | Test against a physical LA6-POE device. |
+| 6. Applied State Parity | Done | Applied tier, flash, and buzzer state update only on successful send. Presets and Off are implemented. | Confirm visually with hardware. |
+| 7. Visual Parity Pass | Done | Main workflow panels, presets, logs, discovery list, and busy status are implemented. | Manual visual polish after running the desktop app. |
+| 8. Patlite Auto Discovery | Done | HTTP status and PNS detailed status discovery are implemented in `discovery.rs`, with parser tests. | Verify on a real LAN/device. |
+| 9. Cross-Platform Hardening | In progress | `cargo fmt --check`, `cargo clippy -- -D warnings`, `cargo test`, and `cargo build --release` pass locally. Rust CI matrix for Linux/macOS/Windows is added in `.github/workflows/rust.yml`. | Let hosted CI prove Windows and Linux. |

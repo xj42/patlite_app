@@ -182,7 +182,7 @@ impl PatliteApp {
         .spacing(8);
 
         let content = column![
-            text("Patlite Controller").size(28),
+            text("Patlite Controller").size(20),
             endpoint,
             controls,
             row![self.tiers_panel(), self.presets_panel(can_send),]
@@ -192,11 +192,11 @@ impl PatliteApp {
             row![
                 button("Off")
                     .on_press_maybe(can_send.then_some(Message::OffPressed))
-                    .width(120)
+                    .width(100)
                     .padding([8, 18]),
                 button("Send")
                     .on_press_maybe(can_send.then_some(Message::SendPressed))
-                    .width(140)
+                    .width(100)
                     .padding([8, 18]),
             ]
             .spacing(10)
@@ -211,7 +211,7 @@ impl PatliteApp {
     }
 
     fn tiers_panel(&self) -> Element<'_, Message> {
-        let mut tiers = column![text("Tiers").size(20)].spacing(8);
+        let mut tiers = column![text("Tiers").size(18)].spacing(4);
 
         for index in 0..5 {
             let selected = self.tiers[index];
@@ -221,9 +221,9 @@ impl PatliteApp {
                 pick_list(La6Colour::ALL, Some(selected), move |value| {
                     Message::TierChanged(index, value)
                 })
-                .width(150),
+                .width(100),
                 color_chip(applied),
-                text(applied.name()).width(90),
+                text(applied.name()).width(50),
             ]
             .spacing(8);
             tiers = tiers.push(tier_row);
