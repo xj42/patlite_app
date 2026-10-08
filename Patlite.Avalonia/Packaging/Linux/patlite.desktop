@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Patlite Controller
+Comment=Control an LA6-POE signal tower
+Exec=/opt/patlite/Patlite.Avalonia
+Icon=patlite
+StartupWMClass=patlite
+Terminal=false
+Categories=Utility;

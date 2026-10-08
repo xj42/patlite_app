@@ -1,22 +1,22 @@
 using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
 using System.Windows.Input;
-using Avalonia.Threading;
 using Microsoft.Extensions.Logging;
+using Patlite.Avalonia.Services;
 using Patlite.lib;
 
 namespace Patlite.Avalonia.ViewModels;
 
-public class MainViewModel : INotifyPropertyChanged
+public class MainViewModel : ViewModelBase
 {
     private readonly ILogger<MainViewModel> _logger;
     private readonly IPNS _pns;
+    private readonly IUiDispatcher _uiDispatcher;
 
-    public MainViewModel(ILogger<MainViewModel> logger, IPNS pns)
+    public MainViewModel(ILogger<MainViewModel> logger, IPNS pns, IUiDispatcher uiDispatcher)
     {
         _logger = logger;
         _pns = pns;
+        _uiDispatcher = uiDispatcher;
 
         La6Colours = Enum.GetValues<La6Colour>();
         FlashValues = Enum.GetValues<Flash>();
@@ -231,8 +231,6 @@ public class MainViewModel : INotifyPropertyChanged
         }
     }
 
-    public event PropertyChangedEventHandler? PropertyChanged;
-
     private bool TryParsePort(out int port)
         => int.TryParse(Port, out port) && port is >= 1 and <= 65535;
 
@@ -383,7 +381,7 @@ public class MainViewModel : INotifyPropertyChanged
 
     public void AddUiLogLine(string line)
     {
-        Dispatcher.UIThread.Post(() =>
+        _uiDispatcher.Post(() =>
         {
             LogLines.Add(line);
             if (LogLines.Count > 200)
@@ -395,7 +393,7 @@ public class MainViewModel : INotifyPropertyChanged
 
     private void ApplyPatternToApplied(PatlitePattern pattern)
     {
-        Dispatcher.UIThread.Post(() =>
+        _uiDispatcher.Post(() =>
         {
             AppliedTier1 = pattern.Tier1;
             AppliedTier2 = pattern.Tier2;
@@ -405,21 +403,5 @@ public class MainViewModel : INotifyPropertyChanged
             AppliedFlash = pattern.Flash;
             AppliedBuzzer = pattern.Buzzer;
         });
-    }
-
-    private bool Set<T>(ref T field, T value, [CallerMemberName] string? name = null)
-    {
-        if (EqualityComparer<T>.Default.Equals(field, value))
-        {
-            return false;
-        }
-
-        field = value;
-        if (name is not null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
-        }
-
-        return true;
     }
 }

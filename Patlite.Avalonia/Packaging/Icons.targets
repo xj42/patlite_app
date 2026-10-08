@@ -1,0 +1,31 @@
+<Project>
+  <Target Name="CreateMacAppBundle" AfterTargets="Publish"
+          Condition="$([System.String]::Copy('$(RuntimeIdentifier)').StartsWith('osx-'))">
+    <Error Condition="'$(UseAppHost)' != 'true'"
+           Text="The macOS app bundle requires UseAppHost=true." />
+    <PropertyGroup>
+      <MacAppContents>$(PublishDir)Patlite.app/Contents</MacAppContents>
+    </PropertyGroup>
+    <MakeDir Directories="$(MacAppContents)/MacOS;$(MacAppContents)/Resources" />
+    <Copy SourceFiles="@(ResolvedFileToPublish->'$(PublishDir)%(RelativePath)')"
+          DestinationFiles="@(ResolvedFileToPublish->'$(MacAppContents)/MacOS/%(RelativePath)')"
+          SkipUnchangedFiles="true" />
+    <Copy SourceFiles="$(MSBuildProjectDirectory)/Packaging/macOS/Info.plist"
+          DestinationFiles="$(MacAppContents)/Info.plist" />
+    <Copy SourceFiles="$(MSBuildProjectDirectory)/Assets/patlite.icns"
+          DestinationFiles="$(MacAppContents)/Resources/patlite.icns" />
+    <Message Importance="high" Text="Created macOS app bundle: $(PublishDir)Patlite.app" />
+  </Target>
+
+  <Target Name="CopyLinuxDesktopIcon" AfterTargets="Publish"
+          Condition="$([System.String]::Copy('$(RuntimeIdentifier)').StartsWith('linux-'))">
+    <ItemGroup>
+      <LinuxIcon Include="$(MSBuildProjectDirectory)/Assets/Linux/**/*.png" />
+    </ItemGroup>
+    <Copy SourceFiles="@(LinuxIcon)"
+          DestinationFiles="@(LinuxIcon->'$(PublishDir)icons/%(RecursiveDir)%(Filename)%(Extension)')"
+          SkipUnchangedFiles="true" />
+    <Copy SourceFiles="$(MSBuildProjectDirectory)/Packaging/Linux/patlite.desktop"
+          DestinationFiles="$(PublishDir)patlite.desktop" />
+  </Target>
+</Project>
