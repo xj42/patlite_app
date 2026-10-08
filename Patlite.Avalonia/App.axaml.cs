@@ -26,6 +26,7 @@ public partial class App : Application
             var collection = new ServiceCollection();
 
             collection.AddSingleton<MainViewModel>();
+            collection.AddSingleton<IUiDispatcher, AvaloniaUiDispatcher>();
             collection.AddSingleton<IPNS, PNS>();
             collection.AddSingleton<IPatliteCommandBuilder, PatliteCommandBuilder>();
             collection.AddLogging(builder => builder.SetMinimumLevel(LogLevel.Information));
