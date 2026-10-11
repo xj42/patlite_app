@@ -5,3 +5,6 @@
 **/target
 .vs/*
 **/*.lscache
+**/.build/
+Patlite.Swift/dist/
+**/.swiftpm/

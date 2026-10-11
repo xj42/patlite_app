@@ -9,6 +9,9 @@ You will need to setup the Patlite to accept UDP.
 - `Patlite`: Original WPF desktop app (`net8.0-windows`).
 - `Patlite.Avalonia`: Cross-platform Avalonia desktop app (`net10.0`) for Windows/macOS/Linux.
 - `Patlite.lib`: Shared UDP command + transport library.
+- `Patlite.Swift`: Native macOS SwiftUI app (macOS 13+, Swift 6), with the
+  Avalonia controller's protocol, presets, and selected/last-sent state behavior.
+  See [build, run, and test instructions](Patlite.Swift/README.md).
 
 The Avalonia app uses a compact 300-pixel-wide window with the WPF controller's
 controls: connection settings, flash/buzzer controls and current values at the top,
